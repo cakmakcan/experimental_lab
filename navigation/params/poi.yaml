@@ -1,0 +1,23 @@
+#this file is composed of poi for robot to go 
+
+oracle_room: {loc:"oracle_room", x:1.0, y:0.0}
+
+lounge: {loc:"lounge", x:1.5, y:1.5}
+
+kitchen: {loc:"kitchen", x:2.0, y:2.0}
+
+dinning_room: {loc:"dinning_room", x:2.5, y:2.5}
+
+hall: {loc:"hall",x:3.0, y:3.0}
+
+study: {loc:"study_room", x:3.5, y:3.5}
+
+library: {loc:"library", x:4.0, y:4.0}
+
+ballroom: {loc:"ballroom", x:4.5, y:4.5}
+
+convervatory: {loc:"conversatory", x:5.0, y:5.0}
+
+billiard_room: {loc:"billiard_room", x:5.5, y:5.5}
+
+ 
