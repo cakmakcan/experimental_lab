@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
   actionlib
-  action_msgs
+  actionlib_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -57,25 +57,25 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
+ add_service_files(
+   FILES
    Coordinate.srv
 #   Service2.srv
-# )
+ )
 
 ## Generate actions in the 'action' folder
  add_action_files(
-#   FILES
+   FILES
    Robot.action
 #   Action2.action
-# )
+ )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
+ generate_messages(
    DEPENDENCIES
    std_msgs
    actionlib_msgs
-# )
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
