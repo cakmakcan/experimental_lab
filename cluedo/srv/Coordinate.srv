@@ -1,0 +1,5 @@
+#to possess a room cordinate
+bool reqState
+---
+float32 x
+float32 y
