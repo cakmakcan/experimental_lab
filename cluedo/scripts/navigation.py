@@ -3,7 +3,7 @@
 import rospy
 import actionlib
 import time
-from cludeo.msg import RobotAction, RobotFeedback, RobotResult, RobotGoal
+from cluedo.msg import RobotAction, RobotFeedback, RobotResult, RobotGoal
 
 class ActionServer():
 
@@ -15,26 +15,27 @@ class ActionServer():
 	
 		success = True
 		desired_positionx = goal.x
-		desiderd_positiony = goal.y
-		feedback = RobotFeedBack()
+		desired_positiony = goal.y
+		feedback = RobotFeedback()
 		outcome = RobotResult()
 		outcome.result = False
 		while not rospy.is_shutdown():
 			feedback.x = desired_positionx
 			feedback.y = desired_positiony
 			self.a_server.publish_feedback(feedback)
-			if self.server.is_preempt_requested():
-				rospy.loginfo("Goal was reempted')
+			if self.a_server.is_preempt_requested():
+				rospy.loginfo("Goal was reempted")
 				self.server.set_preempted()
 				success = False
 				break
 			time.sleep(5)
 			if success:
 				outcome.result = True
-				self.a_server.set_succeeded(result)	
+				self.a_server.set_succeeded(outcome)
+				break	
 		
 			
-if __name__ = '__main__':
+if __name__ == '__main__':
 	rospy.init_node("navigation_server")
 	s = ActionServer()
 	rospy.spin()	
