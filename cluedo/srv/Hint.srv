@@ -1,4 +1,4 @@
-int ID
+int32 ID
 ---
 string arg0
 string arg1

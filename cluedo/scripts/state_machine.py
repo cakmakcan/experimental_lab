@@ -7,8 +7,9 @@ import smach_ros
 import actionlib
 import time
 import random
+from armor_api.armor_client import ArmorClient
 from cluedo.msg import RobotAction, RobotFeedback, RobotResult, RobotGoal
-from cluedo.msg import Hint, HintRequest, HypCheck, HypCheckRequest
+from cluedo.srv import Hint, HintRequest, HypCheck, HypCheckRequest
 from cluedo.srv import Coordinate, CoordinateResponse, CoordinateRequest
 
 path = "/root/Desktop/" #the path to cluedo ontology (.owl) file
@@ -17,7 +18,7 @@ ID=[1,2,3,4,5,6,7,8]
 
 class GoToRoom(smach.State):
 	def __init__(self):
-		smach.State.__init(self, outcomes=['reached']
+		smach.State.__init(self, outcomes=['reached'])
 		
 	def execute(self, userdata):
 		rospy.loginfo('Executıng state GoToRoom')
@@ -39,7 +40,7 @@ class GoToRoom(smach.State):
 						
 class SearchHints(smach.State):
 	def __init__(self):
-		smach.State.__init(self, outcomes=['hyp_comp','hyp_non_comp']
+		smach.State.__init(self, outcomes=['hyp_comp','hyp_non_comp'])
 	
 	def execute(self,userdata):
 		req = HintRequest(ID = currID)
@@ -59,11 +60,11 @@ class SearchHints(smach.State):
 			armor_client.manipulation.add_objectprop_to_ind(hint_args.arg1, currID, hint_args.arg2)
         
 		#apply the changes
-        	armor_client.utils.apply_buffered_changes()
-        	armor_client.utils.sync_buffered_reasoner()
-        	#get the list of current complete hypotheses
-        	complete_hyp_links = armor_client.query.ind_b2_class("COMPLETED")
-        	complete_hyp = [x.replace("<"+ontology_IRI+"#", '').replace('>','') for x in complete_hyp_links]
+		armor_client.utils.apply_buffered_changes()
+		armor_client.utils.sync_buffered_reasoner()
+		#get the list of current complete hypotheses
+		complete_hyp_links = armor_client.query.ind_b2_class("COMPLETED")
+		complete_hyp = [x.replace("<"+ontology_IRI+"#", '').replace('>','') for x in complete_hyp_links]
         
 		#check if the current hypothesis is complete
 		if currID in complete_hyp:
@@ -77,7 +78,7 @@ class SearchHints(smach.State):
 class GoOracle(smach.State):
 
 	def __init__(self):
-		smach.State.__init__(self, outcomes=['reached']
+		smach.State.__init__(self, outcomes=['reached'])
 		
 	def execute(self,userdata):
 		rospy.loginfo('Executıng state GoToRoom')
@@ -99,7 +100,7 @@ class GoOracle(smach.State):
 		
 class CheckHypothesis(smach.State):
 	def __init__(self):
-		smach.State.__init__(self, outcomes=['hyp_comp','hyp_false']
+		smach.State.__init__(self, outcomes=['hyp_comp','hyp_false'])
 	
 	def execute(self, userdata):
 		global currID
