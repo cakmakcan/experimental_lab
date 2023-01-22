@@ -43,7 +43,7 @@ def check(req):
       a boolean value indicating whether this is the correct ID or not
      
     """
-    return req.ID == correct_ID 
+    return chosenID == correct_ID 
     
 def main():
 
