@@ -10,12 +10,12 @@ rooms_dict = {'lounge': [1.5,1.5], 'kitchen': [2.0,2.5], 'dinning_room': [2.5,3.
 
 def send_coordinates(req):
 	request_state = req.reqState
-	if (reques_state == True):
+	if (request_state == True):
 		rooms_coord = list(rooms_dict.values())
 		rand_coord = random.choice(rooms_cord)
-		resp= CordinateResponse(x = rand_coord[0], y = rand_coord[1])
+		resp= CoordinateResponse(x = rand_coord[0], y = rand_coord[1])
 	else:
-		resp= CordinateResponse(x = oracle_room[0], y = oracle_room[1])
+		resp= CoordinateResponse(x = oracle_room[0], y = oracle_room[1])
 	
 	return resp
 	
