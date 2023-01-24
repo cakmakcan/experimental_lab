@@ -18,7 +18,7 @@ ID=[1,2,3,4,5,6,7,8]
 
 class GoToRoom(smach.State):
 	def __init__(self):
-		smach.State.__init(self, outcomes=['reached'])
+		smach.State.__init__(self, outcomes=['reached'])
 		
 	def execute(self, userdata):
 		rospy.loginfo('Executıng state GoToRoom')
@@ -40,7 +40,7 @@ class GoToRoom(smach.State):
 						
 class SearchHints(smach.State):
 	def __init__(self):
-		smach.State.__init(self, outcomes=['hyp_comp','hyp_non_comp'])
+		smach.State.__init__(self, outcomes=['hyp_comp','hyp_non_comp'])
 	
 	def execute(self,userdata):
 		req = HintRequest(ID = currID)
@@ -75,7 +75,7 @@ class SearchHints(smach.State):
 			return "hyp_non_comp"
 
 
-class GoOracle(smach.State):
+class GoToOracle(smach.State):
 
 	def __init__(self):
 		smach.State.__init__(self, outcomes=['reached'])
@@ -143,8 +143,8 @@ def main():
 	coordinate_client = rospy.ServiceProxy('/coordinates', Coordinate)
 	
 	#initialize navigation server
-	robot_action_client = actionlib.SimpleActionClient('/navigation', RobotAction)
-	robot_action_client.wait_for_server()
+	robot_action_client = actionlib.SimpleActionClient('/navigation_as', RobotAction)
+	#robot_action_client.wait_for_server()
 	
 	#initialize the oracle server
 	oracle_hint_client = rospy.ServiceProxy('/hint', Hint)
@@ -163,11 +163,11 @@ def main():
 	
 	with sm:
 		# Add states to the container
-		smach.StateMachine.add('GoToRandomRoom', GoToRandomRoom(), 
-                               	transitions={'reached':'LookForHints' 
+		smach.StateMachine.add('GoToRoom', GoToRoom(), 
+                               	transitions={'reached':'SearchHints', 
                                             	     })
-		smach.StateMachine.add('LookForHints', LookForHints(), 
-                               	transitions={'hyp_non_comp':'GoToRandomRoom', 
+		smach.StateMachine.add('SearchHints', SearchHints(), 
+                               	transitions={'hyp_non_comp':'GoToRoom', 
                                             	     'hyp_comp':'GoToOracle'})
 		smach.StateMachine.add('GoToOracle', GoToOracle(), 
                                	transitions={'reached':'CheckHypothesis', 
@@ -178,7 +178,7 @@ def main():
                                	transitions={'reached':'CheckHypothesis', 
                                             	     'hyp_non_comp':'CheckHypothesis', 
                                                     'hyp_comp':'CheckHypothesis',
-                                                    'hyp_false':'GoToRandomRoom'})
+                                                    'hyp_false':'GoToRoom'})
 	
 	randInd = random.randint(0,len(ID)-1)  #get a random index of the IDs list
 	currID = 'ID'+str(IDs[randInd])  #get the current hypothesis ID to be investigated (chosen randomly)
