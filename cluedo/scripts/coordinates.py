@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from coordinates.srv import Coordinate, CoordinateResponse
+from cluedo.srv import Coordinate, CoordinateResponse
 import rospy
 import random
 

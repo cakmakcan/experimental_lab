@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>	
-    <node name="navigation" pkg="cluedo" type="nagivation.py" output="screen"  />
+    <node name="navigation" pkg="cluedo" type="navigation.py" output="screen"  />
     <node name="oracle" pkg="cluedo" type="oracle.py" output="screen"  />
     <node name="coordinates" pkg="cluedo" type="coordinates.py" output="screen"  />
     <node name="state_machine" pkg="cluedo" type="state_machine.py" output="screen"  />
