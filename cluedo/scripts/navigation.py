@@ -7,12 +7,12 @@ from cluedo.msg import RobotAction, RobotFeedback, RobotResult, RobotGoal
 
 class ActionServer():
 
-	def __init__(self):
+	def __init__(self,name):
 		self.a_server = actionlib.SimpleActionServer("navigation_as", RobotAction, execute_cb= self.execute_cb, auto_start = False)
 		self.a_server.start()
 		
 	def execute_cb(self,goal):
-	
+		r = rospy.Rate(1)
 		success = True
 		desired_positionx = goal.x
 		desired_positiony = goal.y
@@ -36,6 +36,7 @@ class ActionServer():
 		
 			
 if __name__ == '__main__':
-	rospy.init_node("navigation_server")
-	s = ActionServer()
+	rospy.init_node('navigation_server')
+	#s = ActionServer()
+	server = ActionServer(rospy.get_name())
 	rospy.spin()	

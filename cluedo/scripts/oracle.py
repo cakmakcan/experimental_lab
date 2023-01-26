@@ -23,7 +23,7 @@ def send_hint(req):
 	chosenID = IDlist[reqid]
 	randomindex = random.randint(0,len(chosenID)-1)
 	hint = chosenID[randomindex]
-	resp = HintResponse(arg1=hint[0], arg2=hint[1])
+	resp = HintResponse(arg0=hint[0], arg1=hint[1])
 	del chosenID[randomindex]
 	return resp
 	 

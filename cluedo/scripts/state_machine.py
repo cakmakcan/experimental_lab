@@ -26,14 +26,14 @@ class GoToRoom(smach.State):
 		resp = coordinate_client(req)
 		goal = RobotGoal(x = resp.x, y =resp.y)
 		robot_action_client.send_goal(goal)
-		robot_actıon_client.wait_for_result()
+		robot_action_client.wait_for_result()
 		result = robot_action_client.get_result()
 		while result.result == False:
 			req = CoordinateRequest(reqState = True)
 			resp = coordinate_client(req)
 			goal = RobotGoal(x = resp.x, y =resp.y)
 			robot_action_client.send_goal(goal)
-			robot_actıon_client.wait_for_result()
+			robot_action_client.wait_for_result()
 			result = robot_action_client.get_result()
 		print("Robot has reached room target")
 		return 'reached'
@@ -43,11 +43,11 @@ class SearchHints(smach.State):
 		smach.State.__init__(self, outcomes=['hyp_comp','hyp_non_comp'])
 	
 	def execute(self,userdata):
-		req = HintRequest(ID = currID)
-		hint_args = oracle_client(req)
+		req = HintRequest(ID = randInd)
+		hint_args = oracle_hint_client(req)
 		print("the hint is:", hint_args)
-		command = hint_args.arg1
-		thing = hint_args.arg2
+		command = hint_args.arg0
+		thing = hint_args.arg1
 		#add the hint to the current hypothesis object properties
 		if hint_args.arg1 == "what":
 			armor_client.manipulation.add_ind_to_class(thing, "WEAPON")
@@ -68,7 +68,7 @@ class SearchHints(smach.State):
         
 		#check if the current hypothesis is complete
 		if currID in complete_hyp:
-			print("hypothesis %s is COMPLETE"%currID)
+			print("hypothesis %s is COMPLETE",currID)
 			return "hyp_comp"
 		else:
 			print("Hypothesis not complete yet! Keep searching for hints")
@@ -86,14 +86,14 @@ class GoToOracle(smach.State):
 		resp = coordinate_client(req)
 		goal = RobotGoal(x = resp.x, y =resp.y)
 		robot_action_client.send_goal(goal)
-		robot_actıon_client.wait_for_result()
+		robot_action_client.wait_for_result()
 		result = robot_action_client.get_result()
 		while result.result == False:
 			req = CoordinateRequest(reqState = True)
 			resp = coordinate_client(req)
 			goal = RobotGoal(x = resp.x, y =resp.y)
 			robot_action_client.send_goal(goal)
-			robot_actıon_client.wait_for_result()
+			robot_action_client.wait_for_result()
 			result = robot_action_client.get_result()
 		print("Robot has reached room target")
 		return 'reached'
@@ -139,12 +139,15 @@ def main():
 	global ID
 	global currID,randInd
 	
+	rospy.init_node('state_machine')
+	
+	
 	#initialize the server coordinate of rooms
 	coordinate_client = rospy.ServiceProxy('/coordinates', Coordinate)
 	
 	#initialize navigation server
 	robot_action_client = actionlib.SimpleActionClient('/navigation_as', RobotAction)
-	#robot_action_client.wait_for_server()
+	robot_action_client.wait_for_server()
 	
 	#initialize the oracle server
 	oracle_hint_client = rospy.ServiceProxy('/hint', Hint)
@@ -164,25 +167,22 @@ def main():
 	with sm:
 		# Add states to the container
 		smach.StateMachine.add('GoToRoom', GoToRoom(), 
-                               	transitions={'reached':'SearchHints', 
-                                            	     })
+                               	transitions={'reached':'SearchHints'
+                               		     })
 		smach.StateMachine.add('SearchHints', SearchHints(), 
-                               	transitions={'hyp_non_comp':'GoToRoom', 
-                                            	     'hyp_comp':'GoToOracle'})
+                               	transitions={'hyp_non_comp':'GoToRoom',
+                                            	     'hyp_comp':'GoToOracle'
+                                            	     })
 		smach.StateMachine.add('GoToOracle', GoToOracle(), 
                                	transitions={'reached':'CheckHypothesis', 
-                                            	     'hyp_non_comp':'GoToOracle', 
-                                                    'hyp_comp':'GoToOracle', 
-                                                    'hyp_false':'GoToOracle'})
+                                            	    })
 		smach.StateMachine.add('CheckHypothesis', CheckHypothesis(), 
-                               	transitions={'reached':'CheckHypothesis', 
-                                            	     'hyp_non_comp':'CheckHypothesis', 
-                                                    'hyp_comp':'CheckHypothesis',
+                               	transitions={'hyp_comp':'CheckHypothesis',
                                                     'hyp_false':'GoToRoom'})
 	
 	randInd = random.randint(0,len(ID)-1)  #get a random index of the IDs list
-	currID = 'ID'+str(IDs[randInd])  #get the current hypothesis ID to be investigated (chosen randomly)
-	del IDs[randInd]    #delete this ID from the list so as not to be chosen again
+	currID = 'ID'+str(ID[randInd])  #get the current hypothesis ID to be investigated (chosen randomly)
+	del ID[randInd]    #delete this ID from the list so as not to be chosen again
 	print("New hypothesis ID is %s"%currID)
     
 	#add it to the hypothesis class
@@ -193,8 +193,8 @@ def main():
 	armor_client.utils.sync_buffered_reasoner()
     
 	# Create and start the introspection server for visualization
-	sis = smach_ros.IntrospectionServer('server_name', sm, '/SM_ROOT')
-	sis.start()
+	#sis = smach_ros.IntrospectionServer('server_name', sm, '/SM_ROOT')
+	#sis.start()
 
 	# Execute the state machine
 	outcome = sm.execute()
