@@ -1,20 +1,21 @@
 #!/usr/bin/env python
 
 import rospy
-import random
 from cluedo.srv import Hint, HintResponse
 from cluedo.srv import HypCheck
+import random
+correct_ID = 'ID4'
 
 ID1= [["who","Plum"],["where","kitchen"],["what","revolver"]]
 ID2= [["who","Mustard"],["where","hall"],["what","pipe"]]
-ID3 = [["who","Green"],["where","library"],["what","rope"]]
+ID3= [["who","Green"],["where","library"],["what","rope"]]
 ID4= [["who","Peacock"],["where","study"],["what","dagger"]]
-ID5 = [["who","White"],["where","lounge"],["what","spanner"]]
-ID6 = [["who","Mustard"],["where","dining"],["what","candlestick"]]
-ID7 = [["who","Green"],["where","billiard"],["what","pipe"]]
-ID8 = [["who","Plum"],["where","library"],["what","revolver"]]
-IDlist= [ID1,ID2,ID3,ID4,ID5,ID6,ID7,ID8]
-correct_ID=ID4
+ID5= [["who","White"],["where","lounge"],["what","spanner"]]
+ID6= [["who","Mustard"],["where","dining"],["what","candlestick"]]
+ID7= [["who","Green"],["where","billiard"],["what","pipe"]]
+ID8= [["who","Plum"],["where","library"],["what","revolver"]]
+IDlist= [0,ID1,ID2,ID3,ID4,ID5,ID6,ID7,ID8]
+
 
 def send_hint(req):
 	
@@ -29,7 +30,7 @@ def send_hint(req):
 	 
 def check(req):
 
-	return chosenID == correct_ID
+	return req.ID == correct_ID
     
 def main():
 

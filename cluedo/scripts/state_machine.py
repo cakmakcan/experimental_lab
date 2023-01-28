@@ -43,21 +43,21 @@ class SearchHints(smach.State):
 		smach.State.__init__(self, outcomes=['hyp_comp','hyp_non_comp'])
 	
 	def execute(self,userdata):
-		req = HintRequest(ID = randInd)
+		req = HintRequest(ID = Ind)
 		hint_args = oracle_hint_client(req)
 		print("the hint is:", hint_args)
 		command = hint_args.arg0
 		thing = hint_args.arg1
 		#add the hint to the current hypothesis object properties
-		if hint_args.arg1 == "what":
+		if hint_args.arg0 == "what":
 			armor_client.manipulation.add_ind_to_class(thing, "WEAPON")
-			armor_client.manipulation.add_objectprop_to_ind(hint_args.arg1, currID, hint_args.arg2)
-		elif hint_args.arg1 == "who":
+			armor_client.manipulation.add_objectprop_to_ind(hint_args.arg0, currID, hint_args.arg1)
+		elif hint_args.arg0 == "who":
 			armor_client.manipulation.add_ind_to_class(thing, "PERSON")
-			armor_client.manipulation.add_objectprop_to_ind(hint_args.arg1, currID, hint_args.arg2)
-		elif hint_args.arg1 == "where":
+			armor_client.manipulation.add_objectprop_to_ind(hint_args.arg0, currID, hint_args.arg1)
+		elif hint_args.arg0 == "where":
 			armor_client.manipulation.add_ind_to_class(thing, "PLACE")
-			armor_client.manipulation.add_objectprop_to_ind(hint_args.arg1, currID, hint_args.arg2)
+			armor_client.manipulation.add_objectprop_to_ind(hint_args.arg0, currID, hint_args.arg1)
         
 		#apply the changes
 		armor_client.utils.apply_buffered_changes()
@@ -103,7 +103,7 @@ class CheckHypothesis(smach.State):
 		smach.State.__init__(self, outcomes=['hyp_comp','hyp_false'])
 	
 	def execute(self, userdata):
-		global currID
+		global currID, randInd, Ind
 		rospy.loginfo('Executing state CheckHypothesis')
 		
 		#get all object properties of this hypothesis ID
@@ -117,7 +117,7 @@ class CheckHypothesis(smach.State):
 		print("The collected hypothesis ",currID, " is: who-->",who_name[0] , ", where-->",where_name[0], ", what-->",what_name[0])
 		
 		#check if hypothesis is correct or not
-		req = HypCheckRequest(ID = randInd)
+		req = HypCheckRequest(ID = currID)
 		res = oracle_check_client(req)
 		if res.correct:
 			print("THIS IS THE CORRECT ANSWER! Please, terminate the program")
@@ -128,8 +128,10 @@ class CheckHypothesis(smach.State):
 		else:
 			print("Hypothesis is FALSE")
 			# Get a new random hypothesis ID
-			randInd = random.randint(0,len(IDs)-1)  #get a random index of the IDs list
-			currID = 'ID'+str(IDs[randInd])  #get the current hypothesis ID to be investigated (chosen randomly)
+			randInd = random.randint(0,len(ID)-1)  #get a random index of the IDs list
+			currID = 'ID'+str(ID[randInd])  #get the current hypothesis ID to be investigated (chosen randomly)
+			Ind= ID[randInd]
+			
 			del ID[randInd]    #delete this ID from the list so as not to be chosen again
 			print("new hypothesis ID is %s"%currID)
 			return "hyp_false"
@@ -137,9 +139,16 @@ def main():
 	global armor_client
 	global coordinate_client, robot_action_client,oracle_hint_client, oracle_check_client
 	global ID
-	global currID,randInd
+	global currID,randInd,Ind
 	
 	rospy.init_node('state_machine')
+	
+	# Start ARMOR client and load the cluedo ontology
+	armor_client = ArmorClient("client", "reference")
+	armor_client.utils.load_ref_from_file(path + "cluedo_ontology.owl", ontology_IRI,
+                                True, "PELLET", True, False)  # initializing with buffered manipulation and reasoning
+	armor_client.utils.mount_on_ref()
+	armor_client.utils.set_log_to_terminal(True)
 	
 	
 	#initialize the server coordinate of rooms
@@ -154,12 +163,7 @@ def main():
 	oracle_check_client = rospy.ServiceProxy('/check_hyp', HypCheck)
 	
 	
-	# Start ARMOR client and load the cluedo ontology
-	armor_client = ArmorClient("client", "reference")
-	armor_client.utils.load_ref_from_file(path + "cluedo_ontology.owl", ontology_IRI,
-                                True, "PELLET", True, False)  # initializing with buffered manipulation and reasoning
-	armor_client.utils.mount_on_ref()
-	armor_client.utils.set_log_to_terminal(True)
+	
 	
 	# Create a SMACH state machine
 	sm = smach.StateMachine(outcomes=['container_interface'])
@@ -174,7 +178,7 @@ def main():
                                             	     'hyp_comp':'GoToOracle'
                                             	     })
 		smach.StateMachine.add('GoToOracle', GoToOracle(), 
-                               	transitions={'reached':'CheckHypothesis', 
+                               	transitions={'reached':'CheckHypothesis' 
                                             	    })
 		smach.StateMachine.add('CheckHypothesis', CheckHypothesis(), 
                                	transitions={'hyp_comp':'CheckHypothesis',
@@ -182,6 +186,7 @@ def main():
 	
 	randInd = random.randint(0,len(ID)-1)  #get a random index of the IDs list
 	currID = 'ID'+str(ID[randInd])  #get the current hypothesis ID to be investigated (chosen randomly)
+	Ind = ID[randInd]
 	del ID[randInd]    #delete this ID from the list so as not to be chosen again
 	print("New hypothesis ID is %s"%currID)
     
