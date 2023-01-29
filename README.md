@@ -108,3 +108,20 @@ When the Hypothesis is completed and true, game finish.
 
 ![alt text](https://github.com/cakmakcan/experimental_lab/blob/master/cluedo/images/Screenshot%20from%202023-01-28%2019-34-46.png)
 
+
+## Working Assumptions:
+- The hints are selected randomly from the oracle.py node as a list for each ID number.
+- In the dictionary of hints stored in the oracle, each hypothesis has four hints. Three are of the types: *(who,PERSON)*, *(what,WEAPON)*, *(where,PLACE)*. The fourth one is the empty hint.
+- The robot can get one hint at a time from the same room. 
+- The hint obtained at each room doesn't have to be related to the type of room itself. For example, the agent can receive a hint (where, bathroom) in the kitchen.
+- Whenever a hint is sent to the robot, it is deleted from the list in order not to be sent again. 
+- The robot only goes to the oracle when the current hypothesis is `COMPLETE`
+- The new current hypothesis ID is selected randomly from the list of possible hypothesis IDs. 
+- The list of possible hypothesis IDs range from 1 to 8 and they can be modified in the beginning of [state_machine.py]
+- Whenever an ID is selected, it cannot be selected again.
+- The environment map of obstacles is stored in the motion controller action server for path planning purposes.
+
+## Possible Improvements:
+- Allow a hypothesis not to necessarily contain all three types of hints. It can contain only one or two types. It can be inconsistent.
+- Implement a robot model and a game environment to be more realistic.
+- Implement a real motion controller for the robot instead of the simple waiting function.
