@@ -5,11 +5,11 @@ Author Name : Can Cakmak
 Student Number: 5054534
 E-mail Adress: cakmak1213@gmail.com
 
-##Introduction:
+## Introduction:
 
 Context of this project is the agent goest to random rooms and collects the hints such as (who, Person), (where, Place) and (what, WEAPON). When the hints are colllected, they are checked by oracle in order to determine that whether Hypothesis are correct or not. If it is not correct, agent will look for hints again to be able to find the right one.
 
-##Component Diagram:
+## Component Diagram:
 
 - **The knowledge base (ontology)**: this is the OWL ontology representing the current knowledge of the robot agent. In the beginning it contains the class definitions of `HYPOTHESIS`, `COMPLETE`, `INCONSISTENT`, `PERSON`, `PLACE`, and `WEAPON`, as well as the object properties definitions of *(who, PERSON)*, *(where, PLACE)*, and *(what, WEAPON)*. As the robot explores the environment, new individuals and proberties assertions are added to the ontology.
 
@@ -25,4 +25,86 @@ Context of this project is the agent goest to random rooms and collects the hint
 
 ![alt text](https://github.com/cakmakcan/experimental_lab/blob/master/cluedo/images/ComponentDiagram.png?raw=true)
 
+## State Diagram:
+
+The agent has four possible states:
+- **GoToRoom:** the robot is going to a random room for exploration
+- **SearchHints:** the robot is looking for hints in the place it is currently in
+- **GoToOracle:** the robot is going to the oracle place
+- **CheckHypothesis:** the robot is checking whether its current collected hypothesis is true or not
+
+There are, also, four possible events (state transitions):
+- **reached:** indicating an event that the robot reached its target position
+- **hyp_non_comp:** indicating an event that the robot checked the current hypothesis and found that it is not complete yet
+- **hyp_comp:** indicating an event that the robot checked the current hypothesis and found that it is complete
+- **false:** indicating that the oracle checked the current hypothesis and found that it is false.
+
+![alt text](https://github.com/cakmakcan/experimental_lab/blob/master/cluedo/images/StateDiagram.png)
+
+## Sequence Diagram:
+The temporal sequence of the program goes as follows:
+
+1. The state machine requests a random room from the map server, and receives the *(x,y)* position
+2. it sends the room coordinates to the motion controller and waits until the robot reaches the target
+3. it sends the current hypothesis ID to the oracle and receives a random hint
+4. it adds the hint to the ontology
+5. it checks if the current hypothesis is complete or not (by querying the members of the `COMPLETE` class in the ontology)
+6. if the current hypothesis is not complete yet, go to step 1
+7. if the current hypothesis is complete, the state machine requests the *(x,y)* position of the oracle from the map server
+8. it sends the oracle coordinates to the motion controller and waits until the robot reaches the target
+9. it sends the current hypothesis ID to the oracle to check if it is correct or not
+10. if the sent hypothesis ID is not correct, generate a new random integer (not previously selected) from 1 to 10 to be the current hypothesis ID and go to step 1.
+11. if the sent hypothesis ID is correct, end the program.
+
+![alt text](https://github.com/cakmakcan/experimental_lab/blob/master/cluedo/images/SequenceDiagram.png)
+
+## Installation and Running Procedures:
+
+To run the program, you need first to install [ARMOR](https://github.com/EmaroLab/armor) in your ROS workspace.
+
+Then, you need to adapt the code in armor_py_api scripts to be in Python3 instead of Python2:
+  - add "from armor_api.armor_exceptions import ArmorServiceInternalError, ArmorServiceCallError" in armor_client.py
+  - replace all "except rospy.ServiceException, e" with "except rospy.ServiceException as e"
+  - modify line 132 of armor_query_client with: "if res.success and len(res.queried_objects) > 1:"
+
+Add the path of the armor modules to your Python path:
+```
+export PYTHONPATH=$PYTHONPATH:/root/ros_ws/src/armor/armor_py_api/scripts/armor_api/
+```
+Download this repository to your workspace. Then, build it
+
+```
+catkin_make
+```
+
+Place `cluedo_ontology.owl` file on your desktop (or on any other place, but you need to specify the path inside [state_machine.py](https://github.com/yaraalaa0/ExpRob_CluedoGame/blob/main/cluedo/scripts/state_machine.py))
+
+To launch the program, run the following commands on different terminal tabs:
+```
+roscore
+```
+```
+rosrun armor execute it.emarolab.armor.ARMORMainService
+```
+```
+roslaunch cluedo cluedo.launch`
+
+```
+
+## Result:
+
+**Following are screenshots of the terminal logs in successive timesteps while running the program:**
+
+First, Hypothesis ID is chosen by program and the GoToRoom state runs. After return reached, state move SearchHin state.
+The first hint is found arg0 and arg1. Hypothesis is checked if it is completed or not.
+The robot will continue to search other hints with GoToRoom state.
+After hints are completed, robot change the state to GoToOracle.
+It will check hypothesis, whether hyp is true or not.
+If it is not true, it will keep searching new hints until hyp is completed.
+
+![alt text](https://github.com/cakmakcan/experimental_lab/blob/master/cluedo/images/Screenshot%20from%202023-01-28%2019-33-49.png)
+
+When the Hypothesis is completed and true, game finish.
+
+![alt text](https://github.com/cakmakcan/experimental_lab/blob/master/cluedo/images/Screenshot%20from%202023-01-28%2019-34-46.png)
 
