@@ -44,7 +44,7 @@ There are, also, four possible events (state transitions):
 ## Sequence Diagram:
 The temporal sequence of the program goes as follows:
 
-1. The state machine requests a random room from the map server, and receives the *(x,y)* position
+1. The state machine requests a random room from the coordinate server, and receives the *(x,y)* position
 2. it sends the room coordinates to the motion controller and waits until the robot reaches the target
 3. it sends the current hypothesis ID to the oracle and receives a random hint
 4. it adds the hint to the ontology
@@ -95,12 +95,12 @@ roslaunch cluedo cluedo.launch`
 
 **Following are screenshots of the terminal logs in successive timesteps while running the program:**
 
-First, Hypothesis ID is chosen by program and the GoToRoom state runs. After return reached, state move SearchHin state.
-The first hint is found arg0 and arg1. Hypothesis is checked if it is completed or not.
-The robot will continue to search other hints with GoToRoom state.
-After hints are completed, robot change the state to GoToOracle.
-It will check hypothesis, whether hyp is true or not.
-If it is not true, it will keep searching new hints until hyp is completed.
+1. First, Hypothesis ID is chosen by program and the GoToRoom state runs. After return reached, state move SearchHin state.
+2. The first hint is found arg0 and arg1. Hypothesis is checked if it is completed or not.
+3. The robot will continue to search other hints with GoToRoom state.
+4. After hints are completed, robot change the state to GoToOracle.
+5. It will check hypothesis, whether hyp is true or not.
+6. If it is not true, it will keep searching new hints until hyp is completed.
 
 ![alt text](https://github.com/cakmakcan/experimental_lab/blob/master/cluedo/images/Screenshot%20from%202023-01-28%2019-33-49.png)
 
